@@ -432,6 +432,16 @@ struct Config {
   // desc = can be used to speed up training
   double min_gain_to_split = 0.0;
 
+  // check = >=0.0
+  // desc = penalty applied to splits based on feature interaction complexity
+  // desc = penalizes splits on features that create new interactions not seen in previous trees
+  double interaction_penalty = 0.0;
+
+  // check = >=0.0
+  // desc = complexity penalty applied to splits based on number of features in tree
+  // desc = divides split gain by (1 + complexity_penalty * num_features)
+  double interaction_complexity = 0.0;
+
   // alias = rate_drop
   // check = >=0.0
   // check = <=1.0

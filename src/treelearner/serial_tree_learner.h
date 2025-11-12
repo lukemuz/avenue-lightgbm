@@ -25,6 +25,7 @@
 #include "data_partition.hpp"
 #include "feature_histogram.hpp"
 #include "gradient_discretizer.hpp"
+#include "interaction_penalty.h"
 #include "leaf_splits.hpp"
 #include "monotone_constraints.hpp"
 #include "split_info.hpp"
@@ -236,6 +237,7 @@ class SerialTreeLearner: public TreeLearner {
   std::unique_ptr<TrainingShareStates> share_state_;
   std::unique_ptr<CostEfficientGradientBoosting> cegb_;
   std::unique_ptr<GradientDiscretizer> gradient_discretizer_;
+  std::unique_ptr<InteractionPenalty> interaction_penalty_;
 };
 
 inline data_size_t SerialTreeLearner::GetGlobalDataCountInLeaf(int leaf_idx) const {
