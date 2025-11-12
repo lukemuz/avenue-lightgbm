@@ -1,3 +1,21 @@
+# Avenue-LightGBM
+
+> **A fork of LightGBM with enhanced interaction complexity control**
+
+This fork extends LightGBM with two new parameters designed to control feature interaction complexity in gradient boosting models:
+
+- **`interaction_penalty`**: Penalizes deeper feature interactions, encouraging the model to prefer simpler, more interpretable interactions
+- **`interaction_complexity`**: Explicitly limits the maximum depth of feature interactions allowed in the model
+
+These parameters effectively act as regularization mechanisms that can both improve model interpretability and enhance out-of-sample performance by preventing overfitting to spurious high-order interactions.
+
+## Related Resources
+
+- **Avenue Model Framework**: [lukemuz/Avenue_Model](https://github.com/lukemuz/Avenue_Model) - The complete modeling framework that utilizes these interaction controls
+- **Research Paper**: [Avenue Analytics Methodology](https://avenue-analytics.com/research/avenue-analytics-methodology.pdf) - Detailed methodology and empirical results
+
+---
+
 <img src=https://github.com/microsoft/LightGBM/blob/master/docs/logo/LightGBM_logo_black_text.svg width=300 />
 
 Light Gradient Boosting Machine
