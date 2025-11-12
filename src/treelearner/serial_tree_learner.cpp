@@ -69,6 +69,10 @@ void SerialTreeLearner::Init(const Dataset* train_data, bool is_constant_hessian
     gradient_discretizer_->Init(num_data_, config_->num_leaves, num_features_, train_data_);
   }
 
+  // Initialize the InteractionPenalty instance
+  interaction_penalty_.reset(new InteractionPenalty(config_->interaction_penalty,config_->interaction_complexity));
+  interaction_penalty_->Init();
+
   GetShareStates(train_data_, is_constant_hessian, true);
   histogram_pool_.DynamicChangeSize(train_data_,
   share_state_->num_hist_total_bin(),
@@ -218,6 +222,9 @@ Tree* SerialTreeLearner::Train(const score_t* gradients, const score_t *hessians
 
   int init_splits = ForceSplits(tree_ptr, &left_leaf, &right_leaf, &cur_depth);
 
+  //clear split features in interaction_penalty
+  interaction_penalty_->ClearCurrentTreeFeatures();
+
   for (int split = init_splits; split < config_->num_leaves - 1; ++split) {
     // some initial works before finding best split
     if (BeforeFindBestSplit(tree_ptr, left_leaf, right_leaf)) {
@@ -236,12 +243,18 @@ Tree* SerialTreeLearner::Train(const score_t* gradients, const score_t *hessians
     // split tree with best leaf
     Split(tree_ptr, best_leaf, &left_leaf, &right_leaf);
     cur_depth = std::max(cur_depth, tree->leaf_depth(left_leaf));
+
+    // Add split feature to set
+    interaction_penalty_->AddCurrentTreeFeature(best_leaf_SplitInfo.feature);
   }
 
   if (config_->use_quantized_grad && config_->quant_train_renew_leaf) {
     gradient_discretizer_->RenewIntGradTreeOutput(tree.get(), config_, data_partition_.get(), gradients_, hessians_,
       [this] (int leaf_index) { return GetGlobalDataCountInLeaf(leaf_index); });
   }
+
+  // Add tree's features to the interaction penalty tracker
+  interaction_penalty_->UpdateUsedFeatures();
 
   Log::Debug("Trained a tree with leaves = %d and depth = %d", tree->num_leaves(), cur_depth);
   return tree.release();
@@ -1002,6 +1015,15 @@ void SerialTreeLearner::ComputeBestSplitForFeature(
         leaf_splits->leaf_index(), config_->monotone_penalty);
     new_split.gain *= penalty;
   }
+
+  // check to see if feature combination has been used before and add penalty
+  if (config_->interaction_penalty > 0.0) {
+    new_split.gain -= interaction_penalty_->CalculatePenalty(real_fidx);
+  }
+  if (config_->interaction_complexity > 0.0) {
+    new_split.gain = new_split.gain / (1 + interaction_penalty_->CalculateComplexityPenalty(real_fidx));
+  }
+
   // it is needed to filter the features after the above code.
   // Otherwise, the `is_splittable` in `FeatureHistogram` will be wrong, and cause some features being accidentally filtered in the later nodes.
   if (new_split > *best_split && is_feature_used) {
