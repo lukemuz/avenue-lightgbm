@@ -3662,6 +3662,50 @@ def test_trees_to_dataframe(rng):
         assert tree_df.loc[0, col] is None
 
 
+def _num_features_per_tree(booster):
+    """Number of distinct features the splits of each tree in ``booster`` use."""
+
+    def _split_features(node):
+        if "split_feature" not in node:
+            return []
+        return [node["split_feature"]] + _split_features(node["left_child"]) + _split_features(node["right_child"])
+
+    return [len(set(_split_features(t["tree_structure"]))) for t in booster.dump_model()["tree_info"]]
+
+
+@pytest.mark.parametrize("penalty_param", ["interaction_penalty", "interaction_complexity"])
+def test_interaction_penalty_params_are_parsed_and_change_the_model(penalty_param, capsys):
+    # Regression test: both parameters are declared in include/LightGBM/config.h but are only
+    # ever parsed through the generated src/io/config_auto.cpp. If that file is not regenerated
+    # they silently keep their 0.0 default, every call site stays behind its `> 0.0` guard, and
+    # the penalties never run -- with no error, just an identical model.
+    X, y = make_synthetic_regression(n_samples=1000, n_features=10, n_informative=6)
+    y = (y - y.mean()) / y.std()
+    params = {
+        "objective": "regression",
+        "num_leaves": 15,
+        "min_data_in_leaf": 5,
+        "learning_rate": 0.1,
+        "seed": 708,
+        "deterministic": True,
+        "num_threads": 1,
+        "verbosity": 0,
+    }
+
+    unpenalized = lgb.train(params, lgb.Dataset(X, y), num_boost_round=15)
+    capsys.readouterr()
+    penalized = lgb.train({**params, penalty_param: 5.0}, lgb.Dataset(X, y), num_boost_round=15)
+
+    # the parameter reaches the parser ...
+    assert f"Unknown parameter: {penalty_param}" not in capsys.readouterr().out
+    assert f"[{penalty_param}: 5]" in penalized.model_to_string()
+
+    # ... and it actually bites: penalizing new interactions makes the trees fall back on
+    # features they already split on, so the fitted model is different and simpler
+    assert not np.allclose(unpenalized.predict(X), penalized.predict(X))
+    assert sum(_num_features_per_tree(penalized)) < sum(_num_features_per_tree(unpenalized))
+
+
 def test_interaction_constraints():
     X, y = make_synthetic_regression(n_samples=200)
     num_features = X.shape[1]

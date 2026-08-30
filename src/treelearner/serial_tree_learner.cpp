@@ -254,7 +254,7 @@ Tree* SerialTreeLearner::Train(const score_t* gradients, const score_t *hessians
   }
 
   // Add tree's features to the interaction penalty tracker
-  interaction_penalty_->UpdateUsedFeatures();
+  interaction_penalty_->UpdateUsedFeatures(tree_ptr->get_used_features());
 
   Log::Debug("Trained a tree with leaves = %d and depth = %d", tree->num_leaves(), cur_depth);
   return tree.release();

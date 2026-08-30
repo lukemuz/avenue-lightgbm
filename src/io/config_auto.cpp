@@ -228,6 +228,8 @@ const std::unordered_set<std::string>& Config::parameter_set() {
   "lambda_l2",
   "linear_lambda",
   "min_gain_to_split",
+  "interaction_penalty",
+  "interaction_complexity",
   "drop_rate",
   "max_drop",
   "skip_drop",
@@ -420,6 +422,12 @@ void Config::GetMembersFromString(const std::unordered_map<std::string, std::str
 
   GetDouble(params, "min_gain_to_split", &min_gain_to_split);
   CHECK_GE(min_gain_to_split, 0.0);
+
+  GetDouble(params, "interaction_penalty", &interaction_penalty);
+  CHECK_GE(interaction_penalty, 0.0);
+
+  GetDouble(params, "interaction_complexity", &interaction_complexity);
+  CHECK_GE(interaction_complexity, 0.0);
 
   GetDouble(params, "drop_rate", &drop_rate);
   CHECK_GE(drop_rate, 0.0);
@@ -711,6 +719,8 @@ std::string Config::SaveMembersToString() const {
   str_buf << "[lambda_l2: " << lambda_l2 << "]\n";
   str_buf << "[linear_lambda: " << linear_lambda << "]\n";
   str_buf << "[min_gain_to_split: " << min_gain_to_split << "]\n";
+  str_buf << "[interaction_penalty: " << interaction_penalty << "]\n";
+  str_buf << "[interaction_complexity: " << interaction_complexity << "]\n";
   str_buf << "[drop_rate: " << drop_rate << "]\n";
   str_buf << "[max_drop: " << max_drop << "]\n";
   str_buf << "[skip_drop: " << skip_drop << "]\n";
@@ -837,6 +847,8 @@ const std::unordered_map<std::string, std::vector<std::string>>& Config::paramet
     {"lambda_l2", {"reg_lambda", "lambda", "l2_regularization"}},
     {"linear_lambda", {}},
     {"min_gain_to_split", {"min_split_gain"}},
+    {"interaction_penalty", {}},
+    {"interaction_complexity", {}},
     {"drop_rate", {"rate_drop"}},
     {"max_drop", {}},
     {"skip_drop", {}},
@@ -982,6 +994,8 @@ const std::unordered_map<std::string, std::string>& Config::ParameterTypes() {
     {"lambda_l2", "double"},
     {"linear_lambda", "double"},
     {"min_gain_to_split", "double"},
+    {"interaction_penalty", "double"},
+    {"interaction_complexity", "double"},
     {"drop_rate", "double"},
     {"max_drop", "int"},
     {"skip_drop", "double"},
