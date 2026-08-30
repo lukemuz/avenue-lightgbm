@@ -8,10 +8,12 @@
 #include <LightGBM/dataset.h>
 #include <LightGBM/meta.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <map>
 #include <memory>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -140,6 +142,17 @@ class Tree {
   inline void PredictContrib(const double* feature_values, int num_features, double* output);
   inline void PredictContribByMap(const std::unordered_map<int, double>& feature_values,
                                   int num_features, std::unordered_map<int, double>* output);
+
+  /*!
+  * \brief Get the set of (real) feature indices used by the splits of this tree
+  * \return set of real feature indices used in this tree
+  */
+  inline std::set<int> get_used_features() const {
+    // only the first num_leaves_ - 1 entries of split_feature_ correspond to
+    // realized splits; the rest of the vector is still at its initial value
+    return std::set<int>(split_feature_.begin(),
+                         split_feature_.begin() + std::max(num_leaves_ - 1, 0));
+  }
 
   /*! \brief Get Number of leaves*/
   inline int num_leaves() const { return num_leaves_; }

@@ -499,6 +499,22 @@ Learning Control Parameters
 
    -  can be used to speed up training
 
+-  ``interaction_penalty`` :raw-html:`<a id="interaction_penalty" title="Permalink to this parameter" href="#interaction_penalty">&#x1F517;&#xFE0E;</a>`, default = ``0.0``, type = double, constraints: ``interaction_penalty >= 0.0``
+
+   -  penalty applied to splits based on feature interaction complexity
+
+   -  penalizes splits on features that create new interactions not seen in previous trees
+
+   -  **Note**: not implemented for the CUDA implementation (``device_type="cuda"``), where it is ignored
+
+-  ``interaction_complexity`` :raw-html:`<a id="interaction_complexity" title="Permalink to this parameter" href="#interaction_complexity">&#x1F517;&#xFE0E;</a>`, default = ``0.0``, type = double, constraints: ``interaction_complexity >= 0.0``
+
+   -  complexity penalty applied to splits based on number of features in tree
+
+   -  divides split gain by (1 + complexity_penalty * num_features)
+
+   -  **Note**: not implemented for the CUDA implementation (``device_type="cuda"``), where it is ignored
+
 -  ``drop_rate`` :raw-html:`<a id="drop_rate" title="Permalink to this parameter" href="#drop_rate">&#x1F517;&#xFE0E;</a>`, default = ``0.1``, type = double, aliases: ``rate_drop``, constraints: ``0.0 <= drop_rate <= 1.0``
 
    -  used only in ``dart``

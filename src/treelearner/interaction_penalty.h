@@ -63,11 +63,15 @@ public:
     }
 
 
-    // Method to update the used features after a tree is constructed
-    void UpdateUsedFeatures() {
+    // Method to update the used features after a tree is constructed.
+    // Takes the feature set read back from the finished tree, so that the
+    // recorded combination always matches what the tree actually split on.
+    // The caller must pass real feature indices, the same index space that
+    // CalculatePenalty()/AddCurrentTreeFeature() are given.
+    void UpdateUsedFeatures(const std::set<int>& features) {
         std::lock_guard<std::mutex> lock(mutex_);
-        if (!current_tree_features_.empty()) {  // Only add non-empty sets
-            used_features_.push_back(current_tree_features_);
+        if (!features.empty()) {  // Only add non-empty sets
+            used_features_.push_back(features);
         }
     }
 
