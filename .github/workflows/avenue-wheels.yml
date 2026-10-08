@@ -30,8 +30,10 @@ jobs:
             arch: aarch64
           - os: macos-15-intel
             arch: x86_64
+            macos_target: "15.0"
           - os: macos-14
             arch: arm64
+            macos_target: "14.0"
           - os: windows-2022
             arch: AMD64
     runs-on: ${{ matrix.os }}
@@ -48,6 +50,7 @@ jobs:
       - run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=${{ matrix.macos_target }} CMAKE_BUILD_PARALLEL_LEVEL=4 OMP_NUM_THREADS=2"
       - uses: actions/upload-artifact@v4
         with:
           name: avenue-${{ matrix.os }}

@@ -26,7 +26,8 @@ GitHub release download URL directly to `pip install`.
 **Until the first Avenue wheel release is published, use the source installation below.**
 
 The wheel workflow targets Linux x86-64/ARM64, macOS Intel/Apple Silicon, and Windows
-x86-64. Wheels bundle their OpenMP dependency. They use the `py3-none` tag because
+x86-64. macOS wheels target macOS 14+ on Apple Silicon and macOS 15+ on Intel,
+matching their bundled OpenMP runtime. Wheels bundle their OpenMP dependency. They use the `py3-none` tag because
 the native library is loaded through ctypes, without a CPython-specific ABI.
 Python 3.9+ is supported; use Python 3.12 or 3.13 with Avenue Model.
 
