@@ -1,13 +1,13 @@
 """Exercise an installed fork wheel, its native penalties, and stock coexistence."""
-from importlib.metadata import version
-from pathlib import Path
-import tempfile
 
 import importlib.util
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
+from importlib.metadata import version
+from pathlib import Path
 
 import numpy as np
 
@@ -21,12 +21,12 @@ def split_features(node):
 def main():
     if "--fork-first" in sys.argv:
         print("Import Avenue, then stock LightGBM", flush=True)
-        import avenue_lightgbm as avenue
-        import lightgbm as stock
+        avenue = importlib.import_module("avenue_lightgbm")
+        stock = importlib.import_module("lightgbm")
     else:
         print("Import stock, then Avenue LightGBM", flush=True)
-        import lightgbm as stock
-        import avenue_lightgbm as avenue
+        stock = importlib.import_module("lightgbm")
+        avenue = importlib.import_module("avenue_lightgbm")
     print("Both imports succeeded", flush=True)
     assert avenue.__version__ == version("avenue-lightgbm")
     assert Path(avenue.__file__).parent.name == "avenue_lightgbm"
@@ -37,9 +37,15 @@ def main():
     rng = np.random.default_rng(47)
     x = rng.normal(size=(512, 3))
     y = 3 * x[:, 0] + 2 * x[:, 1] + rng.normal(scale=0.1, size=512)
-    params = {"objective": "regression", "verbosity": -1, "num_threads": 2,
-              "num_leaves": 7, "min_data_in_leaf": 16, "min_gain_to_split": 0.1,
-              "seed": 47}
+    params = {
+        "objective": "regression",
+        "verbosity": -1,
+        "num_threads": 2,
+        "num_leaves": 7,
+        "min_data_in_leaf": 16,
+        "min_gain_to_split": 0.1,
+        "seed": 47,
+    }
     data = avenue.Dataset(x, label=y, free_raw_data=False)
     print("Train Avenue baseline", flush=True)
     baseline = avenue.train(params, data, num_boost_round=5)
@@ -54,8 +60,9 @@ def main():
             assert all(tree["num_leaves"] == 1 for tree in penalized.dump_model()["tree_info"]), name
         else:
             # Complexity scales gain, rather than imposing a hard split cutoff.
-            assert all(len(split_features(tree["tree_structure"])) <= 1
-                       for tree in penalized.dump_model()["tree_info"]), name
+            assert all(
+                len(split_features(tree["tree_structure"])) <= 1 for tree in penalized.dump_model()["tree_info"]
+            ), name
             assert not np.allclose(penalized.predict(x), baseline.predict(x)), name
 
     with tempfile.TemporaryDirectory() as directory:

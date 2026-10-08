@@ -51,7 +51,9 @@ jobs:
       - run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=${{ matrix.macos_target }} CMAKE_BUILD_PARALLEL_LEVEL=4 OMP_NUM_THREADS=2"
+          CIBW_ENVIRONMENT_MACOS: >-
+            MACOSX_DEPLOYMENT_TARGET=${{ matrix.macos_target }}
+            CMAKE_BUILD_PARALLEL_LEVEL=4 OMP_NUM_THREADS=2
       - uses: actions/upload-artifact@v4
         with:
           name: avenue-${{ matrix.os }}
@@ -112,4 +114,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           sha256sum dist/* > dist/SHA256SUMS
-          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --draft --title "Avenue LightGBM $GITHUB_REF_NAME" --generate-notes
+          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --draft \
+            --title "Avenue LightGBM $GITHUB_REF_NAME" --generate-notes
