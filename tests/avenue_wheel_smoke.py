@@ -3,12 +3,13 @@ from importlib.metadata import version
 from pathlib import Path
 import tempfile
 
+import importlib.util
+import os
+import shutil
+import subprocess
+import sys
+
 import numpy as np
-print("Import stock LightGBM", flush=True)
-import lightgbm as stock
-print("Import Avenue LightGBM", flush=True)
-import avenue_lightgbm as avenue
-print("Both imports succeeded", flush=True)
 
 
 def split_features(node):
@@ -18,6 +19,15 @@ def split_features(node):
 
 
 def main():
+    if "--fork-first" in sys.argv:
+        print("Import Avenue, then stock LightGBM", flush=True)
+        import avenue_lightgbm as avenue
+        import lightgbm as stock
+    else:
+        print("Import stock, then Avenue LightGBM", flush=True)
+        import lightgbm as stock
+        import avenue_lightgbm as avenue
+    print("Both imports succeeded", flush=True)
     assert avenue.__version__ == version("avenue-lightgbm")
     assert Path(avenue.__file__).parent.name == "avenue_lightgbm"
     assert Path(stock.__file__).parent.name == "lightgbm"
@@ -61,5 +71,47 @@ def main():
     print(f"avenue-lightgbm {avenue.__version__}: both penalties, model reload and stock coexistence passed")
 
 
+def check_macos_fallback():
+    """Exercise the bundled runtime without changing the machine's installed libraries."""
+    package = Path(importlib.util.find_spec("avenue_lightgbm").origin).parent
+    if not (package / ".dylibs/libomp.dylib").is_file():
+        return  # Source installs use the build machine's OpenMP runtime.
+    with tempfile.TemporaryDirectory() as directory:
+        copied = Path(directory) / "avenue_lightgbm"
+        shutil.copytree(package, copied, ignore=shutil.ignore_patterns("__pycache__"))
+        native = copied / "lib/lib_lightgbm.dylib"
+        for path in ("/opt/homebrew/opt/libomp/lib", "/usr/local/opt/libomp/lib", "/opt/local/lib/libomp"):
+            subprocess.run(["install_name_tool", "-delete_rpath", path, str(native)], check=True)
+        subprocess.run(["codesign", "--force", "--sign", "-", str(native)], check=True)
+        code = """
+import ctypes
+from pathlib import Path
+import avenue_lightgbm as lgb
+import numpy as np
+assert Path(lgb.__file__).resolve().parent == Path.cwd() / 'avenue_lightgbm'
+x = np.arange(100., dtype=float).reshape(-1, 1)
+model = lgb.train({'objective': 'regression', 'verbosity': -1, 'num_threads': 2},
+                  lgb.Dataset(x, label=x[:, 0]), num_boost_round=3)
+assert np.std(model.predict(x)) > 0
+# Confirm the fallback library was loaded from this copied wheel.
+loader = ctypes.CDLL(None)
+loader._dyld_image_count.restype = ctypes.c_uint32
+loader._dyld_get_image_name.argtypes = [ctypes.c_uint32]
+loader._dyld_get_image_name.restype = ctypes.c_char_p
+runtimes = [loader._dyld_get_image_name(i).decode() for i in range(loader._dyld_image_count())
+            if loader._dyld_get_image_name(i).decode().endswith('/libomp.dylib')]
+assert len(runtimes) == 1 and Path(runtimes[0]).resolve().is_relative_to(Path.cwd()), runtimes
+print('Bundled macOS OpenMP fallback passed')
+"""
+        env = {**os.environ, "PYTHONPATH": directory}
+        subprocess.run([sys.executable, "-X", "faulthandler", "-c", code], cwd=directory, env=env, check=True)
+
+
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        main()
+    else:
+        for order in ("--stock-first", "--fork-first"):
+            subprocess.run([sys.executable, "-X", "faulthandler", "-u", __file__, order], check=True)
+        if sys.platform == "darwin":
+            check_macos_fallback()
