@@ -52,6 +52,7 @@ environment = { CMAKE_BUILD_PARALLEL_LEVEL = "4", OMP_NUM_THREADS = "2" }
 
 [tool.cibuildwheel.macos]
 before-all = "brew install libomp"
+repair-wheel-command = "python {project}/.ci/repair_avenue_macos.py {wheel} {dest_dir} {delocate_archs}"
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"

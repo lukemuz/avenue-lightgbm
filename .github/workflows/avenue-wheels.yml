@@ -10,6 +10,7 @@ on:
       - 'src/**'
       - 'external_libs/**'
       - 'tests/avenue_wheel_smoke.py'
+      - '.ci/repair_avenue_macos.py'
       - '.github/workflows/avenue-wheels.yml'
   push:
     tags: ['v*']
