@@ -1,202 +1,114 @@
-# Avenue-LightGBM
-
-> **A fork of LightGBM with enhanced interaction complexity control**
-
-This fork extends LightGBM with two new parameters designed to control feature interaction complexity in gradient boosting models:
-
-- **`interaction_penalty`**: Penalizes deeper feature interactions, encouraging the model to prefer simpler, more interpretable interactions
-- **`interaction_complexity`**: Explicitly limits the maximum depth of feature interactions allowed in the model
-
-These parameters effectively act as regularization mechanisms that can both improve model interpretability and enhance out-of-sample performance by preventing overfitting to spurious high-order interactions.
-
-## Related Resources
-
-- **Avenue Model Framework**: [lukemuz/Avenue_Model](https://github.com/lukemuz/Avenue_Model) - The complete modeling framework that utilizes these interaction controls
-- **Research Paper**: [Avenue Analytics Methodology](https://avenue-analytics.com/research/avenue-analytics-methodology.pdf) - Detailed methodology and empirical results
-
----
-
-<img src=https://github.com/microsoft/LightGBM/blob/master/docs/logo/LightGBM_logo_black_text.svg width=300 />
-
-Light Gradient Boosting Machine
-===============================
-
-[![C++ GitHub Actions Build Status](https://github.com/microsoft/LightGBM/actions/workflows/cpp.yml/badge.svg?branch=master)](https://github.com/microsoft/LightGBM/actions/workflows/cpp.yml)
-[![Python-package GitHub Actions Build Status](https://github.com/microsoft/LightGBM/actions/workflows/python_package.yml/badge.svg?branch=master)](https://github.com/microsoft/LightGBM/actions/workflows/python_package.yml)
-[![R-package GitHub Actions Build Status](https://github.com/microsoft/LightGBM/actions/workflows/r_package.yml/badge.svg?branch=master)](https://github.com/microsoft/LightGBM/actions/workflows/r_package.yml)
-[![CUDA Version GitHub Actions Build Status](https://github.com/microsoft/LightGBM/actions/workflows/cuda.yml/badge.svg?branch=master)](https://github.com/microsoft/LightGBM/actions/workflows/cuda.yml)
-[![SWIG Wrapper GitHub Actions Build Status](https://github.com/microsoft/LightGBM/actions/workflows/swig.yml/badge.svg?branch=master)](https://github.com/microsoft/LightGBM/actions/workflows/swig.yml)
-[![Static Analysis GitHub Actions Build Status](https://github.com/microsoft/LightGBM/actions/workflows/static_analysis.yml/badge.svg?branch=master)](https://github.com/microsoft/LightGBM/actions/workflows/static_analysis.yml)
-[![Azure Pipelines Build Status](https://lightgbm-ci.visualstudio.com/lightgbm-ci/_apis/build/status/Microsoft.LightGBM?branchName=master)](https://lightgbm-ci.visualstudio.com/lightgbm-ci/_build/latest?definitionId=1)
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/1ys5ot401m0fep6l/branch/master?svg=true)](https://ci.appveyor.com/project/guolinke/lightgbm/branch/master)
-[![Documentation Status](https://readthedocs.org/projects/lightgbm/badge/?version=latest)](https://lightgbm.readthedocs.io/)
-[![Link checks](https://github.com/microsoft/LightGBM/actions/workflows/lychee.yml/badge.svg?branch=master)](https://github.com/microsoft/LightGBM/actions/workflows/lychee.yml)
-[![License](https://img.shields.io/github/license/microsoft/lightgbm.svg)](https://github.com/microsoft/LightGBM/blob/master/LICENSE)
-[![EffVer Versioning](https://img.shields.io/badge/version_scheme-EffVer-0097a7)](https://jacobtomlinson.dev/effver)
-[![StackOverflow questions](https://img.shields.io/stackexchange/stackoverflow/t/lightgbm?logo=stackoverflow&logoColor=white&label=StackOverflow%20questions)](https://stackoverflow.com/questions/tagged/lightgbm?sort=votes)
-[![Python Versions](https://img.shields.io/pypi/pyversions/lightgbm.svg?logo=python&logoColor=white)](https://pypi.org/project/lightgbm)
-[![PyPI Version](https://img.shields.io/pypi/v/lightgbm.svg?logo=pypi&logoColor=white)](https://pypi.org/project/lightgbm)
-[![conda Version](https://img.shields.io/conda/vn/conda-forge/lightgbm?logo=conda-forge&logoColor=white&label=conda)](https://anaconda.org/conda-forge/lightgbm)
-[![CRAN Version](https://www.r-pkg.org/badges/version/lightgbm)](https://cran.r-project.org/package=lightgbm)
-[![NuGet Version](https://img.shields.io/nuget/v/lightgbm?logo=nuget&logoColor=white)](https://www.nuget.org/packages/LightGBM)
-
-LightGBM is a gradient boosting framework that uses tree based learning algorithms. It is designed to be distributed and efficient with the following advantages:
-
-- Faster training speed and higher efficiency.
-- Lower memory usage.
-- Better accuracy.
-- Support of parallel, distributed, and GPU learning.
-- Capable of handling large-scale data.
-
-For further details, please refer to [Features](https://github.com/microsoft/LightGBM/blob/master/docs/Features.rst).
-
-Benefiting from these advantages, LightGBM is being widely-used in many [winning solutions](https://github.com/microsoft/LightGBM/blob/master/examples/README.md#machine-learning-challenge-winning-solutions) of machine learning competitions.
-
-[Comparison experiments](https://github.com/microsoft/LightGBM/blob/master/docs/Experiments.rst#comparison-experiment) on public datasets show that LightGBM can outperform existing boosting frameworks on both efficiency and accuracy, with significantly lower memory consumption. What's more, [distributed learning experiments](https://github.com/microsoft/LightGBM/blob/master/docs/Experiments.rst#parallel-experiment) show that LightGBM can achieve a linear speed-up by using multiple machines for training in specific settings.
-
-Get Started and Documentation
------------------------------
-
-Our primary documentation is at https://lightgbm.readthedocs.io/ and is generated from this repository. If you are new to LightGBM, follow [the installation instructions](https://lightgbm.readthedocs.io/en/latest/Installation-Guide.html) on that site.
-
-Next you may want to read:
-
-- [**Examples**](https://github.com/microsoft/LightGBM/tree/master/examples) showing command line usage of common tasks.
-- [**Features**](https://github.com/microsoft/LightGBM/blob/master/docs/Features.rst) and algorithms supported by LightGBM.
-- [**Parameters**](https://github.com/microsoft/LightGBM/blob/master/docs/Parameters.rst) is an exhaustive list of customization you can make.
-- [**Distributed Learning**](https://github.com/microsoft/LightGBM/blob/master/docs/Parallel-Learning-Guide.rst) and [**GPU Learning**](https://github.com/microsoft/LightGBM/blob/master/docs/GPU-Tutorial.rst) can speed up computation.
-- [**FLAML**](https://www.microsoft.com/en-us/research/project/fast-and-lightweight-automl-for-large-scale-data/articles/flaml-a-fast-and-lightweight-automl-library/) provides automated tuning for LightGBM ([code examples](https://microsoft.github.io/FLAML/docs/Examples/AutoML-for-LightGBM/)).
-- [**Optuna Hyperparameter Tuner**](https://medium.com/optuna/lightgbm-tuner-new-optuna-integration-for-hyperparameter-optimization-8b7095e99258) provides automated tuning for LightGBM hyperparameters ([code examples](https://github.com/optuna/optuna-examples/blob/main/lightgbm/lightgbm_tuner_simple.py)).
-- [**Understanding LightGBM Parameters (and How to Tune Them using Neptune)**](https://neptune.ai/blog/lightgbm-parameters-guide).
-
-Documentation for contributors:
-
-- [**How we update readthedocs.io**](https://github.com/microsoft/LightGBM/blob/master/docs/README.rst).
-- Check out the [**Development Guide**](https://github.com/microsoft/LightGBM/blob/master/docs/Development-Guide.rst).
-
-News
-----
-
-Please refer to changelogs at [GitHub releases](https://github.com/microsoft/LightGBM/releases) page.
-
-External (Unofficial) Repositories
-----------------------------------
-
-Projects listed here offer alternative ways to use LightGBM.
-They are not maintained or officially endorsed by the `LightGBM` development team.
-
-JPMML (Java PMML converter): https://github.com/jpmml/jpmml-lightgbm
-
-Nyoka (Python PMML converter): https://github.com/SoftwareAG/nyoka
-
-Treelite (model compiler for efficient deployment): https://github.com/dmlc/treelite
-
-lleaves (LLVM-based model compiler for efficient inference): https://github.com/siboehm/lleaves
-
-Hummingbird (model compiler into tensor computations): https://github.com/microsoft/hummingbird
-
-GBNet (use `LightGBM` as a [PyTorch Module](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html)): https://github.com/mthorrell/gbnet
-
-cuML Forest Inference Library (GPU-accelerated inference): https://github.com/rapidsai/cuml
-
-daal4py (Intel CPU-accelerated inference): https://github.com/intel/scikit-learn-intelex/tree/master/daal4py
-
-m2cgen (model appliers for various languages): https://github.com/BayesWitnesses/m2cgen
-
-leaves (Go model applier): https://github.com/dmitryikh/leaves
-
-ONNXMLTools (ONNX converter): https://github.com/onnx/onnxmltools
-
-SHAP (model output explainer): https://github.com/slundberg/shap
-
-Shapash (model visualization and interpretation): https://github.com/MAIF/shapash
-
-dtreeviz (decision tree visualization and model interpretation): https://github.com/parrt/dtreeviz
-
-supertree (interactive visualization of decision trees): https://github.com/mljar/supertree
-
-SynapseML (LightGBM on Spark): https://github.com/microsoft/SynapseML
-
-Kubeflow Fairing (LightGBM on Kubernetes): https://github.com/kubeflow/fairing
-
-Kubeflow Operator (LightGBM on Kubernetes): https://github.com/kubeflow/xgboost-operator
-
-lightgbm_ray (LightGBM on Ray): https://github.com/ray-project/lightgbm_ray
-
-Ray (distributed computing framework): https://github.com/ray-project/ray
-
-Mars (LightGBM on Mars): https://github.com/mars-project/mars
-
-ML.NET (.NET/C#-package): https://github.com/dotnet/machinelearning
-
-LightGBM.NET (.NET/C#-package): https://github.com/rca22/LightGBM.Net
-
-LightGBM Ruby (Ruby gem): https://github.com/ankane/lightgbm-ruby
-
-LightGBM4j (Java high-level binding): https://github.com/metarank/lightgbm4j
-
-LightGBM4J (JVM interface for LightGBM written in Scala): https://github.com/seek-oss/lightgbm4j
-
-Julia-package: https://github.com/IQVIA-ML/LightGBM.jl
-
-lightgbm3 (Rust binding): https://github.com/Mottl/lightgbm3-rs
-
-MLServer (inference server for LightGBM): https://github.com/SeldonIO/MLServer
-
-MLflow (experiment tracking, model monitoring framework): https://github.com/mlflow/mlflow
-
-FLAML (AutoML library for hyperparameter optimization): https://github.com/microsoft/FLAML
-
-MLJAR AutoML (AutoML on tabular data): https://github.com/mljar/mljar-supervised
-
-Optuna (hyperparameter optimization framework): https://github.com/optuna/optuna
-
-LightGBMLSS (probabilistic modelling with LightGBM): https://github.com/StatMixedML/LightGBMLSS
-
-mlforecast (time series forecasting with LightGBM): https://github.com/Nixtla/mlforecast
-
-skforecast (time series forecasting with LightGBM): https://github.com/JoaquinAmatRodrigo/skforecast
-
-`{bonsai}` (R `{parsnip}`-compliant interface): https://github.com/tidymodels/bonsai
-
-`{mlr3extralearners}` (R `{mlr3}`-compliant interface): https://github.com/mlr-org/mlr3extralearners
-
-lightgbm-transform (feature transformation binding): https://github.com/microsoft/lightgbm-transform
-
-`postgresml` (LightGBM training and prediction in SQL, via a Postgres extension): https://github.com/postgresml/postgresml
-
-`pyodide` (run `lightgbm` Python-package in a web browser): https://github.com/pyodide/pyodide
-
-`vaex-ml` (Python DataFrame library with its own interface to LightGBM): https://github.com/vaexio/vaex
-
-Support
--------
-
-- Ask a question [on Stack Overflow with the `lightgbm` tag](https://stackoverflow.com/questions/ask?tags=lightgbm), we monitor this for new questions.
-- Open **bug reports** and **feature requests** on [GitHub issues](https://github.com/microsoft/LightGBM/issues).
-
-How to Contribute
------------------
-
-Check [CONTRIBUTING](https://github.com/microsoft/LightGBM/blob/master/CONTRIBUTING.md) page.
-
-Microsoft Open Source Code of Conduct
--------------------------------------
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-Reference Papers
-----------------
-
-Yu Shi, Guolin Ke, Zhuoming Chen, Shuxin Zheng, Tie-Yan Liu. "Quantized Training of Gradient Boosting Decision Trees" ([link](https://proceedings.neurips.cc/paper/2022/hash/77911ed9e6e864ca1a3d165b2c3cb258-Abstract.html)). Advances in Neural Information Processing Systems 35 (NeurIPS 2022), pp. 18822-18833.
-
-Guolin Ke, Qi Meng, Thomas Finley, Taifeng Wang, Wei Chen, Weidong Ma, Qiwei Ye, Tie-Yan Liu. "[LightGBM: A Highly Efficient Gradient Boosting Decision Tree](https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html)". Advances in Neural Information Processing Systems 30 (NIPS 2017), pp. 3149-3157.
-
-Qi Meng, Guolin Ke, Taifeng Wang, Wei Chen, Qiwei Ye, Zhi-Ming Ma, Tie-Yan Liu. "[A Communication-Efficient Parallel Algorithm for Decision Tree](https://proceedings.neurips.cc/paper/2016/hash/10a5ab2db37feedfdeaab192ead4ac0e-Abstract.html)". Advances in Neural Information Processing Systems 29 (NIPS 2016), pp. 1279-1287.
-
-Huan Zhang, Si Si and Cho-Jui Hsieh. "[GPU Acceleration for Large-scale Tree Boosting](https://arxiv.org/abs/1706.08359)". SysML Conference, 2018.
-
-License
--------
-
-This project is licensed under the terms of the MIT license. See [LICENSE](https://github.com/microsoft/LightGBM/blob/master/LICENSE) for additional details.
+# Avenue LightGBM
+
+**The training backend for Avenue's interpretable machine learning.**
+
+[Avenue Model](https://github.com/lukemuz/Avenue_Model) handles tuning, exact conversion
+into editable tables, inspection, scoring and optional GLM refitting. This backend
+adds two training penalties that encourage fewer, simpler feature interactions,
+so the resulting tables are easier to understand.
+
+Install it alongside stock LightGBM: the package is `avenue-lightgbm`, and the Python
+import is `avenue_lightgbm`. Avenue Model automatically prefers this backend when it
+creates a dataset through `resolve_lightgbm()`.
+
+## Install
+
+Release wheels are installed with ordinary pip and need no C++ compiler. Download the
+wheel for your system from [Releases](https://github.com/lukemuz/avenue-lightgbm/releases):
+
+```sh
+python -m pip install ./avenue_lightgbm-VERSION-py3-none-PLATFORM.whl
+python -c "import avenue_lightgbm; print(avenue_lightgbm.__version__)"
+```
+
+Replace the placeholder filename with the downloaded file. You can also pass its
+GitHub release download URL directly to `pip install`.
+**Until the first Avenue wheel release is published, use the source installation below.**
+
+The wheel workflow targets Linux x86-64/ARM64, macOS Intel/Apple Silicon, and Windows
+x86-64. Wheels bundle their OpenMP dependency. They use the `py3-none` tag because
+the native library is loaded through ctypes, without a CPython-specific ABI.
+Python 3.9+ is supported; use Python 3.12 or 3.13 with Avenue Model.
+
+Install Avenue Model separately using its
+[installation instructions](https://github.com/lukemuz/Avenue_Model#installation),
+including its `[tuning]` extra for Optuna. Installing this backend does not replace
+stock `lightgbm`; the two libraries have separate package directories.
+
+## Use it through Avenue Model
+
+With your numerical predictors `X`, response `y` and a Polars frame `quotes`:
+
+```python
+from avenue_model import from_booster, resolve_lightgbm, tune_lgbm
+
+backend, _ = resolve_lightgbm()  # Prefers avenue_lightgbm when installed.
+dataset = backend.Dataset(X, label=y, feature_name=list(quotes.columns))
+search = tune_lgbm(dataset, {"objective": "poisson"}, n_trials=50)
+print(search.summary())
+selected = search.select(max_tables=10)  # Screens mean CV table count.
+booster = backend.train({**selected.params, "num_iterations": selected.num_iterations}, dataset)
+conversion = from_booster(booster, quotes)
+print(conversion.parity)
+print(conversion.metadata["complexity"])  # Inspect the final artifact too.
+conversion.save("rating_plan")
+```
+
+Train and cross-validate on training data; use separate quotes for validation.
+Start with the [Avenue workflow guide](https://github.com/lukemuz/Avenue_Model/blob/main/docs/lightgbm.md)
+for complete examples, exposure conventions, inspecting tables and GLM refitting.
+
+You can also train directly with `import avenue_lightgbm as lgb`; it provides the
+usual LightGBM `Dataset`, `train`, `cv` and `Booster` APIs.
+
+## What the penalties do
+
+| Parameter | Effect |
+|---|---|
+| `interaction_penalty` | Subtracts a penalty from split gain when adding a feature creates a combination not represented in earlier trees. |
+| `interaction_complexity` | Divides split gain by an increasing penalty when introducing a new feature into the current tree. |
+
+Both default to zero. Neither is a hard limit on interaction depth or table count.
+Avenue Model tunes them alongside predictive accuracy and measures the resulting
+converted tables. These controls apply to CPU training; CUDA ignores them.
+
+## Install from source
+
+Requires Git, a C++17 compiler and an OpenMP runtime. On Ubuntu/Debian install
+`build-essential`; on macOS install the Xcode command-line tools and `brew install libomp`;
+on Windows use Visual Studio Build Tools with C++ support. Pip supplies CMake and Ninja
+as build dependencies where needed.
+
+```sh
+git clone --recursive https://github.com/lukemuz/avenue-lightgbm.git
+cd avenue-lightgbm
+python -m pip install .
+```
+
+For an existing checkout, first run `git submodule update --init --recursive`.
+Run pip from the repository root: the inherited `python-package/` and `build-python.sh`
+entry points retain upstream packaging under the name `lightgbm`.
+
+## Build and release
+
+```sh
+python -m pip install build
+python -m build
+python -m pip install ./dist/ACTUAL_WHEEL_FILENAME.whl lightgbm
+python tests/avenue_wheel_smoke.py
+```
+
+The smoke check verifies both penalties affect trained models, saved models reload,
+and stock LightGBM remains usable in the same process. The **Avenue wheels** GitHub
+Actions workflow builds, repairs and tests platform wheels on pull requests or manual
+runs; its artifacts can be downloaded before a release. It also rebuilds from the
+source archive to verify that users do not need Git submodules when installing it.
+
+To release, update the version in the root `pyproject.toml`, merge, and push the matching
+`vVERSION` tag. After all builds pass, the workflow creates a **draft GitHub release**
+with wheels, a source archive and checksums. Review its assets and publish the draft.
+No PyPI account is required.
+
+[Upstream LightGBM documentation](README.upstream.md) ·
+[Research methodology](https://avenue-analytics.com/research/avenue-analytics-methodology.pdf) ·
+[MIT license](LICENSE)

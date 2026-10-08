@@ -1,0 +1,57 @@
+[build-system]
+requires = ["scikit-build-core>=0.12,<2"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "avenue-lightgbm"
+version = "0.1.0"
+description = "The LightGBM training backend for Avenue's interpretable table models"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+dependencies = ["numpy>=1.17.0", "scipy"]
+
+[project.urls]
+Homepage = "https://github.com/lukemuz/avenue-lightgbm"
+Repository = "https://github.com/lukemuz/avenue-lightgbm"
+Issues = "https://github.com/lukemuz/avenue-lightgbm/issues"
+"Avenue Model" = "https://github.com/lukemuz/Avenue_Model"
+
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+cmake.version = ">=3.28"
+cmake.build-type = "Release"
+build.targets = ["_lightgbm"]
+wheel.packages = []
+wheel.py-api = "py3"
+wheel.license-files = ["LICENSE", "external_libs/eigen/COPYING*",
+                       "external_libs/fmt/LICENSE*", "external_libs/fast_double_parser/LICENSE*",
+                       "external_libs/compute/LICENSE*"]
+install.strip = true
+sdist.exclude = [".github", "docs", "examples", "R-package", "tests", "windows",
+                 "external_libs/**/test*", "external_libs/**/benchmarks",
+                 "external_libs/**/.git*"]
+sdist.include = ["external_libs/fast_double_parser/include/**",
+                 "external_libs/fast_double_parser/LICENSE*",
+                 "external_libs/fmt/include/**", "external_libs/fmt/LICENSE*",
+                 "external_libs/eigen/Eigen/**", "external_libs/eigen/COPYING*",
+                 "external_libs/compute/include/**", "external_libs/compute/LICENSE*"]
+
+[tool.scikit-build.cmake.define]
+__BUILD_FOR_PYTHON = "ON"
+AVENUE_PYTHON_PACKAGE = "ON"
+BUILD_CLI = "OFF"
+INSTALL_HEADERS = "OFF"
+
+[tool.cibuildwheel]
+build = "cp312-*"
+skip = "*-musllinux_* *-win32"
+test-requires = ["lightgbm"]
+test-command = "python {project}/tests/avenue_wheel_smoke.py"
+environment = { CMAKE_BUILD_PARALLEL_LEVEL = "4", OMP_NUM_THREADS = "2" }
+
+[tool.cibuildwheel.macos]
+before-all = "brew install libomp"
+
+[tool.cibuildwheel.windows]
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
