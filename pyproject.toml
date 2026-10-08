@@ -47,7 +47,7 @@ INSTALL_HEADERS = "OFF"
 build = "cp312-*"
 skip = "*-musllinux_* *-win32"
 test-requires = ["lightgbm"]
-test-command = "python {project}/tests/avenue_wheel_smoke.py"
+test-command = "python -X faulthandler -u {project}/tests/avenue_wheel_smoke.py"
 environment = { CMAKE_BUILD_PARALLEL_LEVEL = "4", OMP_NUM_THREADS = "2" }
 
 [tool.cibuildwheel.macos]
