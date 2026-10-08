@@ -691,7 +691,19 @@ if(BUILD_CLI)
 endif()
 
 if(__BUILD_FOR_PYTHON)
-    set(CMAKE_INSTALL_PREFIX "lightgbm")
+    if(AVENUE_PYTHON_PACKAGE)
+        set(CMAKE_INSTALL_PREFIX "avenue_lightgbm")
+        install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python-package/lightgbm/"
+                DESTINATION avenue_lightgbm
+                FILES_MATCHING PATTERN "*.py" PATTERN "py.typed"
+                PATTERN "__pycache__" EXCLUDE)
+        # scikit-build supplies the version from the root pyproject.toml.
+        file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/avenue-version.txt" "${SKBUILD_PROJECT_VERSION}\n")
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/avenue-version.txt"
+                DESTINATION avenue_lightgbm RENAME VERSION.txt)
+    else()
+        set(CMAKE_INSTALL_PREFIX "lightgbm")
+    endif()
 endif()
 
 # The macOS linker puts an absolute path to linked libraries in lib_lightgbm.dylib.
