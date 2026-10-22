@@ -28,5 +28,10 @@ exclude = [
     '^https://.*\.stackexchange\.com/.*',
 ]
 exclude_path = [
+    # Inherited upstream material: historical links are not maintained by Avenue.
+    # Keep current project docs checked; revisit if these files become Avenue-maintained.
+    "(^|/)CONTRIBUTING\\.md$",
+    "(^|/)R-package/cran-comments\\.md$",
+    "(^|/)README\\.upstream\\.md$",
     "(^|/)docs/.*\\.rst",
 ]
